@@ -1,121 +1,179 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { NavLink, Route, Routes } from 'react-router-dom'
+import {
+  CalendarCheck,
+  HeartPulse,
+  Info,
+  Mail,
+  Menu,
+  PawPrint,
+  Stethoscope,
+  X,
+} from 'lucide-react'
+
+import Home from './pages/Home'
+import Services from './pages/Services'
+import AnimalHealth from './pages/AnimalHealth'
+import About from './pages/About'
+import Contact from './pages/Contact'
+import BookConsultation from './pages/BookConsultation'
+
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const closeMenu = () => setMenuOpen(false)
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="site">
+      <header className="header">
+        <div className="container nav-container">
+          <NavLink to="/" className="brand" onClick={closeMenu}>
+            <div className="brand-icon">
+              <PawPrint size={25} strokeWidth={2.2} />
+            </div>
 
-      <div className="ticks"></div>
+            <div>
+              <span className="brand-name">Gidiovet</span>
+              <span className="brand-subtitle">
+                Online Veterinary Care
+              </span>
+            </div>
+          </NavLink>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          <button
+            type="button"
+            className="menu-button"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? <X size={27} /> : <Menu size={27} />}
+          </button>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+          <nav className={`nav ${menuOpen ? 'nav-open' : ''}`}>
+            <NavLink to="/" end onClick={closeMenu}>
+              Home
+            </NavLink>
+
+            <NavLink to="/services" onClick={closeMenu}>
+              Services
+            </NavLink>
+
+            <NavLink to="/animal-health" onClick={closeMenu}>
+              Animal Health
+            </NavLink>
+
+            <NavLink to="/about" onClick={closeMenu}>
+              About
+            </NavLink>
+
+            <NavLink to="/contact" onClick={closeMenu}>
+              Contact
+            </NavLink>
+
+            <NavLink
+              to="/book-consultation"
+              className="nav-button"
+              onClick={closeMenu}
+            >
+              <CalendarCheck size={17} />
+              Book Consultation
+            </NavLink>
+          </nav>
+        </div>
+      </header>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/animal-health" element={<AnimalHealth />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route
+          path="/book-consultation"
+          element={<BookConsultation />}
+        />
+      </Routes>
+
+      <footer className="footer">
+        <div className="container footer-grid">
+          <div className="footer-brand">
+            <NavLink to="/" className="brand footer-logo">
+              <div className="brand-icon">
+                <PawPrint size={23} />
+              </div>
+
+              <div>
+                <span className="brand-name">Gidiovet</span>
+                <span className="brand-subtitle">
+                  Online Veterinary Care
+                </span>
+              </div>
+            </NavLink>
+
+            <p>Every Animal Has A Story.</p>
+
+            <span>
+              Professional veterinary guidance and animal health support
+              available online worldwide.
+            </span>
+          </div>
+
+          <div className="footer-column">
+            <h3>Quick Links</h3>
+
+            <NavLink to="/services">
+              <Stethoscope size={16} />
+              Services
+            </NavLink>
+
+            <NavLink to="/animal-health">
+              <HeartPulse size={16} />
+              Animal Health
+            </NavLink>
+
+            <NavLink to="/about">
+              <Info size={16} />
+              About
+            </NavLink>
+
+            <NavLink to="/contact">
+              <Mail size={16} />
+              Contact
+            </NavLink>
+          </div>
+
+          <div className="footer-column">
+            <h3>Contact</h3>
+
+            <a
+              href="https://wa.me/237671964562"
+              target="_blank"
+              rel="noreferrer"
+            >
+              WhatsApp
+            </a>
+
+            <a href="mailto:gidiovetcare@gmail.com">
+              gidiovetcare@gmail.com
+            </a>
+
+            <div>Available online 24/7</div>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <div className="container">
+            <p>
+              © {new Date().getFullYear()} Gidiovet Online Veterinary Care.
+              All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
   )
 }
 
