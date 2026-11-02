@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { NavLink, Route, Routes } from 'react-router-dom'
+
 import {
   CalendarCheck,
   HeartPulse,
   Info,
   Mail,
   Menu,
-  PawPrint,
   Stethoscope,
   X,
 } from 'lucide-react'
+
+import gidiovetLogo from './assets/gidiovet-logo.jpeg'
 
 import Home from './pages/Home'
 import Services from './pages/Services'
@@ -30,8 +32,11 @@ function App() {
       <header className="header">
         <div className="container nav-container">
           <NavLink to="/" className="brand" onClick={closeMenu}>
-            <div className="brand-icon">
-              <PawPrint size={25} strokeWidth={2.2} />
+            <div className="brand-logo">
+              <img
+                src={gidiovetLogo}
+                alt="Gidiovet Online Veterinary Care"
+              />
             </div>
 
             <div>
@@ -101,8 +106,11 @@ function App() {
         <div className="container footer-grid">
           <div className="footer-brand">
             <NavLink to="/" className="brand footer-logo">
-              <div className="brand-icon">
-                <PawPrint size={23} />
+              <div className="brand-logo footer-brand-logo">
+                <img
+                  src={gidiovetLogo}
+                  alt="Gidiovet Online Veterinary Care"
+                />
               </div>
 
               <div>
