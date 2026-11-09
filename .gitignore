@@ -30,3 +30,17 @@ crash.log
 crash.*.log
 *.tfplan
 .terraform.tfstate.lock.info
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.tfvars
+*.tfvars.json
+id_rsa
+id_ed25519
+
+# Ansible sensitive files
+ansible/*.retry
+# Local Ansible inventory
+ansible/inventory.ini
