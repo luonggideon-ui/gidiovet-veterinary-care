@@ -44,3 +44,4 @@ id_ed25519
 ansible/*.retry
 # Local Ansible inventory
 ansible/inventory.ini
+gidiovet-image.tar.gz
