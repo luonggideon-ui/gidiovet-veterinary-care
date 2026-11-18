@@ -60,7 +60,7 @@ resource "aws_security_group" "gidiovet_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["94.203.16.199/32"]
+    cidr_blocks = ["5.31.135.175/32"]
   }
 
   ingress {
@@ -117,7 +117,8 @@ resource "aws_key_pair" "gidiovet_key" {
 }
 # EC2 Instance for Gidiovet Web Server
 resource "aws_instance" "gidiovet_server" {
-  ami                         = data.aws_ami.amazon_linux.id
+  iam_instance_profile        = aws_iam_instance_profile.gidiovet_ssm_profile.name
+  ami                         = "ami-07c1b6f58fb89ce9f"
   instance_type               = "t3.micro"
   subnet_id                   = aws_subnet.public_subnet.id
   vpc_security_group_ids      = [aws_security_group.gidiovet_sg.id]
