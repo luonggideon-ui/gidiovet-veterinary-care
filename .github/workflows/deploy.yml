@@ -15,43 +15,21 @@ concurrency:
   group: gidiovet-production
   cancel-in-progress: false
 
+env:
+  AWS_REGION: us-east-1
+  INSTANCE_ID: i-059b97377d2fc8962
+  IMAGE_NAME: ghcr.io/luonggideon-ui/gidiovet-veterinary-care
+
 jobs:
   deploy:
     if: >-
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_repository.full_name == 'luonggideon-ui/gidiovet-veterinary-care'
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Inspect GitHub OIDC claims
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          import os
-          import json
-          import base64
-          import urllib.request
-
-          url = os.environ["ACTIONS_ID_TOKEN_REQUEST_URL"]
-          token = os.environ["ACTIONS_ID_TOKEN_REQUEST_TOKEN"]
-
-          request = urllib.request.Request(
-              url + ("&" if "?" in url else "?") + "audience=sts.amazonaws.com",
-              headers={"Authorization": f"Bearer {token}"}
-          )
-
-          with urllib.request.urlopen(request) as response:
-              jwt = json.load(response)["value"]
-
-          payload = jwt.split(".")[1]
-          payload += "=" * (-len(payload) % 4)
-          claims = json.loads(base64.urlsafe_b64decode(payload))
-
-          for key in ("iss", "aud", "sub", "repository", "ref", "event_name"):
-              print(f"{key}: {claims.get(key)}")
-          PY
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -62,9 +40,55 @@ jobs:
         run: aws sts get-caller-identity
 
       - name: Verify deployment target
+        shell: bash
         run: |
-          aws ssm describe-instance-information \
-            --region us-east-1 \
-            --filters "Key=InstanceIds,Values=i-059b97377d2fc8962" \
-            --query 'InstanceInformationList[].[InstanceId,PingStatus]' \
-            --output table
+          STATUS=$(aws ssm describe-instance-information \
+            --filters "Key=InstanceIds,Values=$INSTANCE_ID" \
+            --query 'InstanceInformationList[0].PingStatus' \
+            --output text)
+
+          echo "SSM status: $STATUS"
+
+          if [ "$STATUS" != "Online" ]; then
+            echo "Deployment target is not online"
+            exit 1
+          fi
+
+      - name: Test remote deployment
+        shell: bash
+        env:
+          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          IMAGE="$IMAGE_NAME:$IMAGE_TAG"
+
+          PARAMETERS=$(jq -n --arg image "$IMAGE" \
+            '{commands: [
+              "set -e",
+              "hostname",
+              "docker --version",
+              ("docker pull " + $image),
+              "docker ps"
+            ]}')
+
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters "$PARAMETERS" \
+            --query 'Command.CommandId' \
+            --output text)
+
+          echo "SSM Command ID: $COMMAND_ID"
+
+          RESULT=0
+
+          aws ssm wait command-executed \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$INSTANCE_ID" || RESULT=$?
+
+          aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$INSTANCE_ID" \
+            --query '{Status:Status,Output:StandardOutputContent,Error:StandardErrorContent}' \
+            --output json
+
+          exit "$RESULT"
